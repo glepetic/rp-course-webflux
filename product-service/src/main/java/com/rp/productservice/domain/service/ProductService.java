@@ -1,7 +1,7 @@
 package com.rp.productservice.domain.service;
 
 import com.rp.productservice.adapter.ProductAdapter;
-import com.rp.productservice.domain.model.Range;
+import com.rp.productservice.domain.model.InclusiveRange;
 import com.rp.productservice.domain.port.ProductRepository;
 import com.rp.productservice.infrastructure.dto.request.ProductRequest;
 import com.rp.productservice.infrastructure.dto.response.ProductResponse;
@@ -34,22 +34,22 @@ public class ProductService {
     }
 
     public Flux<ProductResponse> findInRange(int min, int max) {
-        return Mono.fromSupplier(() -> new Range(min, max))
+        return Mono.fromSupplier(() -> new InclusiveRange(min, max))
                 .flatMap(this.validationService::validate)
                 .flatMapMany(this.productRepository::findInRange)
                 .map(this.productAdapter::toResponse);
     }
 
     public Mono<ProductResponse> create(ProductRequest request) {
-        return Mono.just(request)
+        return this.validationService.validate(request)
                 .map(this.productAdapter::toModel)
                 .flatMap(this.productRepository::create)
                 .map(this.productAdapter::toResponse);
     }
 
     public Mono<ProductResponse> update(String id, ProductRequest request) {
-        return this.validationService.validate(id)
-                .map(validatedId -> this.productAdapter.toModel(validatedId, request))
+        return Mono.zip(this.validationService.validate(id), this.validationService.validate(request),
+                        this.productAdapter::toModel)
                 .flatMap(this.productRepository::update)
                 .map(this.productAdapter::toResponse);
     }

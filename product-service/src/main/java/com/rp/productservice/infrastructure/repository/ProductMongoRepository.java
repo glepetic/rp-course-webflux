@@ -3,10 +3,11 @@ package com.rp.productservice.infrastructure.repository;
 import com.rp.productservice.adapter.ProductAdapter;
 import com.rp.productservice.domain.exception.ProductNotFoundException;
 import com.rp.productservice.domain.model.Product;
-import com.rp.productservice.domain.model.Range;
+import com.rp.productservice.domain.model.InclusiveRange;
 import com.rp.productservice.domain.port.ProductRepository;
 import com.rp.productservice.infrastructure.repository.dao.ProductEntityDao;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Range;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,8 +37,10 @@ public class ProductMongoRepository implements ProductRepository {
     }
 
     @Override
-    public Flux<Product> findInRange(Range range) {
-        return this.productDao.findByPriceBetween(range.min(), range.max())
+    public Flux<Product> findInRange(InclusiveRange range) {
+        return Mono.just(range)
+                .map(r -> Range.closed(r.min(), r.max()))
+                .flatMapMany(this.productDao::findByPriceBetween)
                 .map(this.productAdapter::toModel);
     }
 

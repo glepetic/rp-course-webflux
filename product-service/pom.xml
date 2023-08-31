@@ -40,6 +40,7 @@
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
 			<version>4.4.1</version>
+			<scope>test</scope> <!--comment scope to use embedded db in demo project-->
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
