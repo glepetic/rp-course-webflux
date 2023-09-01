@@ -1,57 +1,44 @@
 package com.rp.productservice.domain.service;
 
-import com.rp.productservice.adapter.ProductAdapter;
 import com.rp.productservice.domain.model.InclusiveRange;
+import com.rp.productservice.domain.model.Product;
 import com.rp.productservice.domain.port.ProductRepository;
-import com.rp.productservice.infrastructure.dto.request.ProductRequest;
-import com.rp.productservice.infrastructure.dto.response.ProductResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class ProductService {
 
     private final ValidationService validationService;
-    private final ProductAdapter productAdapter;
     private final ProductRepository productRepository;
 
     public ProductService(ValidationService validationService,
-                          ProductAdapter productAdapter,
                           ProductRepository productRepository) {
         this.validationService = validationService;
-        this.productAdapter = productAdapter;
         this.productRepository = productRepository;
     }
 
-    public Mono<ProductResponse> findById(String id) {
+    public Mono<Product> findById(String id) {
         return this.validationService.validate(id)
-                .flatMap(this.productRepository::findById)
-                .map(this.productAdapter::toResponse);
+                .flatMap(this.productRepository::findById);
     }
 
-    public Flux<ProductResponse> findAll() {
-        return this.productRepository.findAll()
-                .map(this.productAdapter::toResponse);
+    public Flux<Product> findAll() {
+        return this.productRepository.findAll();
     }
 
-    public Flux<ProductResponse> findInRange(int min, int max) {
-        return Mono.fromSupplier(() -> new InclusiveRange(min, max))
-                .flatMap(this.validationService::validate)
-                .flatMapMany(this.productRepository::findInRange)
-                .map(this.productAdapter::toResponse);
+    public Flux<Product> findInRange(InclusiveRange range) {
+        return this.validationService.validate(range)
+                .flatMapMany(this.productRepository::findInRange);
     }
 
-    public Mono<ProductResponse> create(ProductRequest request) {
-        return this.validationService.validate(request)
-                .map(this.productAdapter::toModel)
-                .flatMap(this.productRepository::create)
-                .map(this.productAdapter::toResponse);
+    public Mono<Product> create(Product product) {
+        return this.validationService.validate(product)
+                .flatMap(this.productRepository::create);
     }
 
-    public Mono<ProductResponse> update(String id, ProductRequest request) {
-        return Mono.zip(this.validationService.validate(id), this.validationService.validate(request),
-                        this.productAdapter::toModel)
-                .flatMap(this.productRepository::update)
-                .map(this.productAdapter::toResponse);
+    public Mono<Product> update(Product product) {
+        return this.validationService.validate(product)
+                .flatMap(this.productRepository::update);
     }
 
     public Mono<Void> deleteById(String id) {

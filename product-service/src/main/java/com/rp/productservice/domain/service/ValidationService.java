@@ -5,7 +5,7 @@ import com.rp.productservice.domain.exception.InvalidProductDetailException;
 import com.rp.productservice.domain.exception.InvalidProductPriceException;
 import com.rp.productservice.domain.exception.InvalidRangeException;
 import com.rp.productservice.domain.model.InclusiveRange;
-import com.rp.productservice.infrastructure.dto.request.ProductRequest;
+import com.rp.productservice.domain.model.Product;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -24,12 +24,13 @@ public class ValidationService {
                 .switchIfEmpty(Mono.error(() -> new InvalidIdException(id)));
     }
 
-    public Mono<ProductRequest> validate(ProductRequest productRequest) {
-        return Mono.just(productRequest)
-                .filter(request -> Objects.nonNull(request.price())  && request.price() >= MINIMUM_PRICE)
-                .switchIfEmpty(Mono.error(() -> new InvalidProductPriceException(productRequest.price())))
-                .filter(request -> Objects.nonNull(request.detail()) && !request.detail().isBlank())
-                .switchIfEmpty(Mono.error(() -> new InvalidProductDetailException(productRequest.detail())));
+    public Mono<Product> validate(Product product) {
+        return Mono.just(product)
+                .flatMap(pr -> this.validate(pr.id()).thenReturn(pr))
+                .filter(pr -> Objects.nonNull(pr.price())  && pr.price() >= MINIMUM_PRICE)
+                .switchIfEmpty(Mono.error(() -> new InvalidProductPriceException(product.price())))
+                .filter(pr -> Objects.nonNull(pr.description()) && !pr.description().isBlank())
+                .switchIfEmpty(Mono.error(() -> new InvalidProductDetailException(product.description())));
     }
     public Mono<InclusiveRange> validate(InclusiveRange range) {
         return Mono.just(range)

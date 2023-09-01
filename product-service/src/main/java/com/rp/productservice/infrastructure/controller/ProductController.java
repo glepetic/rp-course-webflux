@@ -1,5 +1,6 @@
 package com.rp.productservice.infrastructure.controller;
 
+import com.rp.productservice.application.usecase.ProductCRUD;
 import com.rp.productservice.domain.service.ProductService;
 import com.rp.productservice.infrastructure.dto.request.ProductRequest;
 import com.rp.productservice.infrastructure.dto.response.ProductResponse;
@@ -15,33 +16,33 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/products")
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductCRUD productCRUD;
 
     @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
+    public ProductController(ProductCRUD productCRUD) {
+        this.productCRUD = productCRUD;
     }
 
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ProductResponse> getProducts(@RequestParam int minPrice,
                                              @RequestParam int maxPrice) {
-        return this.productService.findInRange(minPrice, maxPrice);
+        return this.productCRUD.findInRange(minPrice, maxPrice);
     }
 
     @GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ProductResponse> getProducts() {
-        return this.productService.findAll();
+        return this.productCRUD.findAll();
     }
 
     @GetMapping("/{id}")
     public Mono<ProductResponse> getProduct(@PathVariable String id) {
-        return this.productService.findById(id);
+        return this.productCRUD.findById(id);
     }
 
     @PostMapping
     public Mono<ResponseEntity<ProductResponse>> createProduct(@RequestBody Mono<ProductRequest> productRequestMono) {
         return productRequestMono
-                .flatMap(this.productService::create)
+                .flatMap(this.productCRUD::create)
                 .map(productResponse -> ResponseEntity
                         .status(HttpStatus.CREATED)
                         .body(productResponse)
@@ -52,12 +53,12 @@ public class ProductController {
     public Mono<ProductResponse> updateProduct(@PathVariable String id,
                                                @RequestBody Mono<ProductRequest> productRequestMono) {
         return productRequestMono
-                .flatMap(productRequest -> this.productService.update(id, productRequest));
+                .flatMap(productRequest -> this.productCRUD.update(id, productRequest));
     }
 
     @DeleteMapping("/{id}")
     public Mono<Void> deleteProduct(@PathVariable String id) {
-        return this.productService.deleteById(id);
+        return this.productCRUD.deleteById(id);
     }
 
 }
