@@ -3,12 +3,13 @@ package com.rp.userservice.infrastructure.configuration;
 import com.rp.userservice.adapter.ErrorAdapter;
 import com.rp.userservice.adapter.TransactionAdapter;
 import com.rp.userservice.adapter.UserAdapter;
-import com.rp.userservice.application.usecase.TransactionProcessing;
+import com.rp.userservice.application.usecase.TransactionProcessor;
 import com.rp.userservice.application.usecase.UserCRUD;
 import com.rp.userservice.domain.port.UserRepository;
 import com.rp.userservice.domain.port.UserTransactionRepository;
 import com.rp.userservice.domain.service.TransactionService;
 import com.rp.userservice.domain.service.UserService;
+import com.rp.userservice.domain.service.ValidationService;
 import com.rp.userservice.infrastructure.repository.TransactionRDBRepository;
 import com.rp.userservice.infrastructure.repository.UserRDBRepository;
 import com.rp.userservice.infrastructure.repository.dao.TransactionEntityDao;
@@ -40,9 +41,15 @@ public class SpringConfig {
     }
 
     @Bean
-    public TransactionService transactionService(UserTransactionRepository transactionRepository,
+    public TransactionService transactionService(ValidationService validationService,
+                                                 UserTransactionRepository transactionRepository,
                                                  UserRepository userRepository) {
-        return new TransactionService(transactionRepository, userRepository);
+        return new TransactionService(validationService, transactionRepository, userRepository);
+    }
+
+    @Bean
+    public ValidationService validationService() {
+        return new ValidationService();
     }
 
     @Bean
@@ -52,8 +59,8 @@ public class SpringConfig {
     }
 
     @Bean
-    public UserTransactionRepository userRepository(TransactionEntityDao transactionEntityDao,
-                                                    TransactionAdapter transactionAdapter) {
+    public UserTransactionRepository transactionRepository(TransactionEntityDao transactionEntityDao,
+                                                           TransactionAdapter transactionAdapter) {
         return new TransactionRDBRepository(transactionEntityDao, transactionAdapter);
     }
 
@@ -64,9 +71,9 @@ public class SpringConfig {
     }
 
     @Bean
-    public TransactionProcessing transactionCreate(TransactionService transactionService,
-                                                   TransactionAdapter transactionAdapter) {
-        return new TransactionProcessing(transactionService, transactionAdapter);
+    public TransactionProcessor transactionCreate(TransactionService transactionService,
+                                                  TransactionAdapter transactionAdapter) {
+        return new TransactionProcessor(transactionService, transactionAdapter);
     }
 
 }

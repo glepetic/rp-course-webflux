@@ -21,8 +21,12 @@ public class UserService {
         return this.userRepository.findById(id);
     }
 
-    public Mono<User> save(User user) {
+    public Mono<User> insert(User user) {
         return this.userRepository.save(user);
+    }
+
+    public Mono<User> update(User user) {
+        return this.userRepository.update(user);
     }
 
     public Mono<Void> deleteById(long id) {

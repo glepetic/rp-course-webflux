@@ -1,5 +1,6 @@
 package com.rp.userservice.adapter;
 
+import com.rp.userservice.domain.exception.InvalidTransactionException;
 import com.rp.userservice.domain.exception.UserNotFoundException;
 import com.rp.userservice.infrastructure.dto.response.ErrorCode;
 import com.rp.userservice.infrastructure.dto.response.ErrorResponse;
@@ -13,6 +14,7 @@ public class ErrorAdapter {
 
     private final Map<Class<? extends Throwable>, ErrorCode> codeMap = Map.of(
             UserNotFoundException.class, ErrorCode.USER_NOT_FOUND,
+            InvalidTransactionException.class, ErrorCode.INVALID_REQUEST,
             MissingRequestValueException.class, ErrorCode.INVALID_REQUEST,
             ServerWebInputException.class, ErrorCode.INVALID_REQUEST
     );

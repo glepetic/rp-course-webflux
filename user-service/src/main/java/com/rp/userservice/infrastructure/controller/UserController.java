@@ -5,6 +5,7 @@ import com.rp.userservice.infrastructure.dto.request.UserRequest;
 import com.rp.userservice.infrastructure.dto.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -21,13 +22,13 @@ public class UserController {
         this.userCRUD = userCRUD;
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<UserResponse> findAll() {
         return this.userCRUD.findAll();
     }
 
     @GetMapping("/{id}")
-    public Mono<UserResponse> findById(@PathVariable Long id) {
+    public Mono<UserResponse> findById(@PathVariable long id) {
         return this.userCRUD.findById(id);
     }
 
@@ -40,14 +41,14 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public Mono<UserResponse> update(@PathVariable Long id,
+    public Mono<UserResponse> update(@PathVariable long id,
                                      @RequestBody Mono<UserRequest> userRequestMono) {
         return userRequestMono
                 .flatMap(userRequest -> this.userCRUD.update(id, userRequest));
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> deleteById(@PathVariable Long id) {
+    public Mono<Void> deleteById(@PathVariable long id) {
         return this.userCRUD.deleteById(id);
     }
 

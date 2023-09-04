@@ -3,5 +3,5 @@ package com.rp.userservice.domain.model;
 import lombok.Builder;
 
 @Builder
-public record User(Long id, String name, Integer accountBalance) {
+public record User(long id, String name, int accountBalance) {
 }

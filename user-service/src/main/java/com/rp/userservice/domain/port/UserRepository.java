@@ -8,6 +8,8 @@ public interface UserRepository {
     Flux<User> findAll();
     Mono<User> findById(long id);
     Mono<User> save(User user);
+    Mono<User> update(User user);
     Mono<Void> deleteById(long id);
     Mono<Boolean> updateBalance(long userId, int amount);
+    Mono<Boolean> exists(long userId);
 }

@@ -1,4 +1,4 @@
-package com.rp.productservice.application.usecase;
+package com.rp.productservice.infrastructure.boot;
 
 import com.rp.productservice.domain.model.Product;
 import com.rp.productservice.domain.service.ProductService;
@@ -8,11 +8,11 @@ import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 
 @Slf4j
-public class Bootstrap {
+public class DBSetup {
 
     private final ProductService productService;
 
-    public Bootstrap(ProductService productService) {
+    public DBSetup(ProductService productService) {
         this.productService = productService;
     }
 

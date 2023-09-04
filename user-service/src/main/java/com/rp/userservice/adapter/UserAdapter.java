@@ -17,12 +17,13 @@ public class UserAdapter {
                 .build();
     }
 
-    public User toModel(Long id, UserRequest userRequest) {
+    public User toModel(long id, UserRequest userRequest) {
         return new User(id, userRequest.name(), userRequest.balance());
     }
 
     public UserEntity toEntity(User user) {
         return UserEntity.builder()
+                .id(user.id())
                 .name(user.name())
                 .balance(user.accountBalance())
                 .build();

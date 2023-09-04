@@ -5,7 +5,7 @@ import lombok.Getter;
 public enum ErrorCode {
     UNKNOWN(0, 500),
     USER_NOT_FOUND(100, 404),
-    INVALID_REQUEST(200, 400),
+    INVALID_REQUEST(101, 400),
     ;
 
 

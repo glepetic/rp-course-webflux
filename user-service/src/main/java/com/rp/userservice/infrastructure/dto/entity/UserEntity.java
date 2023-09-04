@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Builder
 @Table("users")
-public record UserEntity(@Id Long id,
+public record UserEntity(@Id long id,
                          String name,
-                         Integer balance) {
+                         int balance) {
 }

@@ -1,4 +1,6 @@
 package com.rp.userservice.domain.model;
 
-public record UserTransaction(long userId, int amount) {
+import java.time.LocalDateTime;
+
+public record UserTransaction(long userId, int amount, LocalDateTime datetime) {
 }

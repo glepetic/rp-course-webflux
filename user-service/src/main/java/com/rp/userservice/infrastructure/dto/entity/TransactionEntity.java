@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 
 @Builder
 @Table("user_transaction")
-public record TransactionEntity(@Id Long id,
+public record TransactionEntity(@Id long id,
                                 long userId,
-                                Integer amount,
+                                int amount,
                                 @Column("transaction_date") LocalDateTime dateTime) {
 
 }

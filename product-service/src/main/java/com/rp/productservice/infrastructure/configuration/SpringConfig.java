@@ -2,7 +2,6 @@ package com.rp.productservice.infrastructure.configuration;
 
 import com.rp.productservice.adapter.ErrorAdapter;
 import com.rp.productservice.adapter.ProductAdapter;
-import com.rp.productservice.application.usecase.Bootstrap;
 import com.rp.productservice.application.usecase.ProductCRUD;
 import com.rp.productservice.domain.port.ProductRepository;
 import com.rp.productservice.domain.service.ProductService;
@@ -48,11 +47,6 @@ public class SpringConfig {
     public ProductCRUD productCRUD(ProductService productService,
                                    ProductAdapter productAdapter) {
         return new ProductCRUD(productService, productAdapter);
-    }
-
-    @Bean
-    public Bootstrap bootstrap(ProductService productService) {
-        return new Bootstrap(productService);
     }
 
     @Bean

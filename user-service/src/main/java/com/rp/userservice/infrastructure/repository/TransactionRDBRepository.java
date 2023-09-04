@@ -4,6 +4,7 @@ import com.rp.userservice.adapter.TransactionAdapter;
 import com.rp.userservice.domain.model.UserTransaction;
 import com.rp.userservice.domain.port.UserTransactionRepository;
 import com.rp.userservice.infrastructure.repository.dao.TransactionEntityDao;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class TransactionRDBRepository implements UserTransactionRepository {
@@ -15,6 +16,12 @@ public class TransactionRDBRepository implements UserTransactionRepository {
                                     TransactionAdapter transactionAdapter) {
         this.transactionDao = transactionDao;
         this.transactionAdapter = transactionAdapter;
+    }
+
+    @Override
+    public Flux<UserTransaction> findByUserId(long userId) {
+        return this.transactionDao.findByUserId(userId)
+                .map(this.transactionAdapter::toModel);
     }
 
     @Override
