@@ -13,7 +13,6 @@ import java.util.Objects;
 public class ExpensiveProductListener {
 
     // This class needs the mongo to be a replica set to work
-
     private final ReactiveMongoTemplate mongoTemplate;
 
     public ExpensiveProductListener(ReactiveMongoTemplate mongoTemplate) {

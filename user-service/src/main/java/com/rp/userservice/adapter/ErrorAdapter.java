@@ -1,8 +1,8 @@
-package com.rp.productservice.adapter;
+package com.rp.userservice.adapter;
 
-import com.rp.productservice.domain.exception.*;
-import com.rp.productservice.infrastructure.dto.response.ErrorCode;
-import com.rp.productservice.infrastructure.dto.response.ErrorResponse;
+import com.rp.userservice.domain.exception.UserNotFoundException;
+import com.rp.userservice.infrastructure.dto.response.ErrorCode;
+import com.rp.userservice.infrastructure.dto.response.ErrorResponse;
 import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.server.ServerWebInputException;
 
@@ -12,13 +12,9 @@ import java.util.function.Supplier;
 public class ErrorAdapter {
 
     private final Map<Class<? extends Throwable>, ErrorCode> codeMap = Map.of(
-            ProductNotFoundException.class, ErrorCode.PRODUCT_NOT_FOUND,
-            InvalidIdException.class, ErrorCode.INVALID_REQUEST,
-            InvalidRangeException.class, ErrorCode.INVALID_REQUEST,
+            UserNotFoundException.class, ErrorCode.USER_NOT_FOUND,
             MissingRequestValueException.class, ErrorCode.INVALID_REQUEST,
-            ServerWebInputException.class, ErrorCode.INVALID_REQUEST,
-            InvalidProductPriceException.class, ErrorCode.INVALID_REQUEST,
-            InvalidProductDescriptionException.class, ErrorCode.INVALID_REQUEST
+            ServerWebInputException.class, ErrorCode.INVALID_REQUEST
     );
 
     public ErrorResponse toErrorResponse(Throwable throwable, Supplier<String> messageProvider) {
