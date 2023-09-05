@@ -1,7 +1,6 @@
 package com.rp.productservice.infrastructure.controller;
 
 import com.rp.productservice.application.usecase.ProductCRUD;
-import com.rp.productservice.domain.service.ProductService;
 import com.rp.productservice.infrastructure.dto.request.ProductRequest;
 import com.rp.productservice.infrastructure.dto.response.ProductResponse;
 import org.springframework.beans.factory.annotation.Autowired;

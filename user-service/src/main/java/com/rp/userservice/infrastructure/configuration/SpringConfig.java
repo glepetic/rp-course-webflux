@@ -5,8 +5,8 @@ import com.rp.userservice.adapter.TransactionAdapter;
 import com.rp.userservice.adapter.UserAdapter;
 import com.rp.userservice.application.usecase.TransactionProcessor;
 import com.rp.userservice.application.usecase.UserCRUD;
-import com.rp.userservice.domain.port.UserRepository;
-import com.rp.userservice.domain.port.UserTransactionRepository;
+import com.rp.userservice.domain.port.UserPort;
+import com.rp.userservice.domain.port.UserTransactionPort;
 import com.rp.userservice.domain.service.TransactionService;
 import com.rp.userservice.domain.service.UserService;
 import com.rp.userservice.domain.service.ValidationService;
@@ -36,15 +36,15 @@ public class SpringConfig {
     }
 
     @Bean
-    public UserService userService(UserRepository userRepository) {
-        return new UserService(userRepository);
+    public UserService userService(UserPort userPort) {
+        return new UserService(userPort);
     }
 
     @Bean
     public TransactionService transactionService(ValidationService validationService,
-                                                 UserTransactionRepository transactionRepository,
-                                                 UserRepository userRepository) {
-        return new TransactionService(validationService, transactionRepository, userRepository);
+                                                 UserTransactionPort transactionRepository,
+                                                 UserPort userPort) {
+        return new TransactionService(validationService, transactionRepository, userPort);
     }
 
     @Bean
@@ -53,14 +53,14 @@ public class SpringConfig {
     }
 
     @Bean
-    public UserRepository userRepository(UserEntityDao userEntityDao,
-                                         UserAdapter userAdapter) {
+    public UserPort userRepository(UserEntityDao userEntityDao,
+                                   UserAdapter userAdapter) {
         return new UserRDBRepository(userEntityDao, userAdapter);
     }
 
     @Bean
-    public UserTransactionRepository transactionRepository(TransactionEntityDao transactionEntityDao,
-                                                           TransactionAdapter transactionAdapter) {
+    public UserTransactionPort transactionRepository(TransactionEntityDao transactionEntityDao,
+                                                     TransactionAdapter transactionAdapter) {
         return new TransactionRDBRepository(transactionEntityDao, transactionAdapter);
     }
 

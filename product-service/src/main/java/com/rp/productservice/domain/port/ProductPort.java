@@ -5,7 +5,7 @@ import com.rp.productservice.domain.model.InclusiveRange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface ProductRepository {
+public interface ProductPort {
     Mono<Product> findById(String id);
     Flux<Product> findAll();
     Flux<Product> findInRange(InclusiveRange range);

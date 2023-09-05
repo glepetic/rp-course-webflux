@@ -4,7 +4,7 @@ import com.rp.userservice.domain.model.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface UserRepository {
+public interface UserPort {
     Flux<User> findAll();
     Mono<User> findById(long id);
     Mono<User> save(User user);

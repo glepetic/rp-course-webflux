@@ -1,36 +1,36 @@
 package com.rp.userservice.domain.service;
 
 import com.rp.userservice.domain.model.User;
-import com.rp.userservice.domain.port.UserRepository;
+import com.rp.userservice.domain.port.UserPort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserPort userPort;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService(UserPort userPort) {
+        this.userPort = userPort;
     }
 
     public Flux<User> findAll() {
-        return this.userRepository.findAll();
+        return this.userPort.findAll();
     }
 
     public Mono<User> findById(long id) {
-        return this.userRepository.findById(id);
+        return this.userPort.findById(id);
     }
 
     public Mono<User> insert(User user) {
-        return this.userRepository.save(user);
+        return this.userPort.save(user);
     }
 
     public Mono<User> update(User user) {
-        return this.userRepository.update(user);
+        return this.userPort.update(user);
     }
 
     public Mono<Void> deleteById(long id) {
-        return this.userRepository.deleteById(id);
+        return this.userPort.deleteById(id);
     }
 
 }

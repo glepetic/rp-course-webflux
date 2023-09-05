@@ -3,12 +3,12 @@ package com.rp.userservice.infrastructure.repository;
 import com.rp.userservice.adapter.UserAdapter;
 import com.rp.userservice.domain.exception.UserNotFoundException;
 import com.rp.userservice.domain.model.User;
-import com.rp.userservice.domain.port.UserRepository;
+import com.rp.userservice.domain.port.UserPort;
 import com.rp.userservice.infrastructure.repository.dao.UserEntityDao;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class UserRDBRepository implements UserRepository {
+public class UserRDBRepository implements UserPort {
 
     private final UserEntityDao userEntityDao;
     private final UserAdapter userAdapter;

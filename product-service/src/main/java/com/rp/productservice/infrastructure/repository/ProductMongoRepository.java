@@ -4,14 +4,14 @@ import com.rp.productservice.adapter.ProductAdapter;
 import com.rp.productservice.domain.exception.ProductNotFoundException;
 import com.rp.productservice.domain.model.Product;
 import com.rp.productservice.domain.model.InclusiveRange;
-import com.rp.productservice.domain.port.ProductRepository;
+import com.rp.productservice.domain.port.ProductPort;
 import com.rp.productservice.infrastructure.repository.dao.ProductEntityDao;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Range;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class ProductMongoRepository implements ProductRepository {
+public class ProductMongoRepository implements ProductPort {
 
     private final ProductAdapter productAdapter;
     private final ProductEntityDao productDao;

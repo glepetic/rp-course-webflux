@@ -2,12 +2,12 @@ package com.rp.userservice.infrastructure.repository;
 
 import com.rp.userservice.adapter.TransactionAdapter;
 import com.rp.userservice.domain.model.UserTransaction;
-import com.rp.userservice.domain.port.UserTransactionRepository;
+import com.rp.userservice.domain.port.UserTransactionPort;
 import com.rp.userservice.infrastructure.repository.dao.TransactionEntityDao;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class TransactionRDBRepository implements UserTransactionRepository {
+public class TransactionRDBRepository implements UserTransactionPort {
 
     private final TransactionEntityDao transactionDao;
     private final TransactionAdapter transactionAdapter;
