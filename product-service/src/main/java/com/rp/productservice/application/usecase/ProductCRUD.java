@@ -7,16 +7,20 @@ import com.rp.productservice.infrastructure.dto.request.ProductRequest;
 import com.rp.productservice.infrastructure.dto.response.ProductResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 public class ProductCRUD {
 
     private final ProductService productService;
     private final ProductAdapter productAdapter;
+    private final Sinks.Many<ProductResponse> sink;
 
     public ProductCRUD(ProductService productService,
-                       ProductAdapter productAdapter) {
+                       ProductAdapter productAdapter,
+                       Sinks.Many<ProductResponse> sink) {
         this.productService = productService;
         this.productAdapter = productAdapter;
+        this.sink = sink;
     }
 
     public Mono<ProductResponse> findById(String id) {
@@ -39,7 +43,8 @@ public class ProductCRUD {
         return Mono.just(request)
                 .map(this.productAdapter::toModel)
                 .flatMap(this.productService::create)
-                .map(this.productAdapter::toResponse);
+                .map(this.productAdapter::toResponse)
+                .doOnNext(this.sink::tryEmitNext);
     }
 
     public Mono<ProductResponse> update(String id, ProductRequest request) {

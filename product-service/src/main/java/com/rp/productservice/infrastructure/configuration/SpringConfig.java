@@ -6,12 +6,14 @@ import com.rp.productservice.application.usecase.ProductCRUD;
 import com.rp.productservice.domain.port.ProductPort;
 import com.rp.productservice.domain.service.ProductService;
 import com.rp.productservice.domain.service.ValidationService;
+import com.rp.productservice.infrastructure.dto.response.ProductResponse;
 import com.rp.productservice.infrastructure.listener.ExpensiveProductListener;
 import com.rp.productservice.infrastructure.repository.ProductMongoRepository;
 import com.rp.productservice.infrastructure.repository.dao.ProductEntityDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import reactor.core.publisher.Sinks;
 
 @Configuration
 public class SpringConfig {
@@ -45,8 +47,9 @@ public class SpringConfig {
 
     @Bean
     public ProductCRUD productCRUD(ProductService productService,
-                                   ProductAdapter productAdapter) {
-        return new ProductCRUD(productService, productAdapter);
+                                   ProductAdapter productAdapter,
+                                   Sinks.Many<ProductResponse> sink) {
+        return new ProductCRUD(productService, productAdapter, sink);
     }
 
     @Bean

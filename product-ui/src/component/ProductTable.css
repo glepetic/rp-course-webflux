@@ -1,0 +1,25 @@
+.submitter {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 30px;
+}
+
+.submitter-item {
+    margin: 20px;
+    height: 50px;
+}
+
+.text-title {
+    color: gray;
+    font-family: 'Arial';
+    margin: 20px;
+}
+
+.notify-button {
+    /*flex: 1 1 min-content;*/
+    height: 50px
+}
+
+.ProductTable {
+    display: flex;
+}
