@@ -4,8 +4,8 @@ import lombok.Getter;
 
 public enum ErrorCode {
     UNKNOWN("N/A", 500),
-    PRODUCT_NOT_FOUND("A1", 404),
-    INVALID_REQUEST("A2", 400),
+    INVALID_REQUEST("A1", 400),
+    UNAVAILABLE_SERVICE("B1", 503)
     ;
 
 

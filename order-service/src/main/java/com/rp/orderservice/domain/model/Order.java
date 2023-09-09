@@ -3,9 +3,10 @@ package com.rp.orderservice.domain.model;
 import lombok.Builder;
 
 @Builder
-public record Order(long id,
-                    long userId,
+public record Order(Long id,
+                    Long userId,
                     String productId,
-                    int amount,
-                    OrderStatus status) {
+                    Integer amount,
+                    OrderStatus status,
+                    String reason) {
 }

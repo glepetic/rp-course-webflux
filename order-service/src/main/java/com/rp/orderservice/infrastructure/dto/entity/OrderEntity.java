@@ -18,9 +18,10 @@ import lombok.NoArgsConstructor;
 public class OrderEntity {
     @Id
     @GeneratedValue
-    private long id;
-    private long userId;
+    private Long id;
+    private Long userId;
     private String productId;
-    private int amount;
+    private Integer amount;
     private OrderEntityStatus status;
+    private String reason;
 }

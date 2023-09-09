@@ -1,6 +1,7 @@
 package com.rp.orderservice.adapter;
 
 import com.rp.orderservice.domain.model.Order;
+import com.rp.orderservice.domain.model.OrderProcess;
 import com.rp.orderservice.domain.model.OrderStatus;
 import com.rp.orderservice.infrastructure.dto.entity.OrderEntity;
 import com.rp.orderservice.infrastructure.dto.entity.OrderEntityStatus;
@@ -10,15 +11,22 @@ import com.rp.orderservice.infrastructure.dto.response.OrderStatusResponse;
 
 public class OrderAdapter {
 
-    public Order toModel(OrderRequest orderRequest) {
-        return Order.builder()
+    public OrderProcess toModel(OrderRequest orderRequest) {
+        return OrderProcess.builder()
                 .productId(orderRequest.productId())
                 .userId(orderRequest.userId())
                 .build();
     }
 
     public OrderResponse toResponse(Order order) {
-        return new OrderResponse(order.id(), order.userId(), order.productId(), order.amount(), this.toStatusResponse(order.status()));
+        return new OrderResponse(
+                order.id(),
+                order.userId(),
+                order.productId(),
+                order.amount(),
+                this.toStatusResponse(order.status()),
+                order.reason()
+        );
     }
 
     private OrderStatusResponse toStatusResponse(OrderStatus status) {
@@ -35,6 +43,7 @@ public class OrderAdapter {
                 .productId(order.productId())
                 .amount(order.amount())
                 .status(this.toEntityStatus(order.status()))
+                .reason(order.reason())
                 .build();
     }
 
@@ -50,7 +59,8 @@ public class OrderAdapter {
                 entity.getUserId(),
                 entity.getProductId(),
                 entity.getAmount(),
-                this.toStatusModel(entity.getStatus())
+                this.toStatusModel(entity.getStatus()),
+                entity.getReason()
         );
     }
 

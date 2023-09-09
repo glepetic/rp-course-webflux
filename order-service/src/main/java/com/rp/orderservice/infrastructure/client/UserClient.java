@@ -1,10 +1,12 @@
 package com.rp.orderservice.infrastructure.client;
 
-import com.rp.orderservice.adapter.ProductAdapter;
+import com.rp.orderservice.adapter.TransactionAdapter;
 import com.rp.orderservice.domain.exception.OrderProcessingException;
-import com.rp.orderservice.domain.model.ProductInfo;
-import com.rp.orderservice.domain.port.ProductInfoPort;
-import com.rp.orderservice.infrastructure.dto.integration.product.ProductDto;
+import com.rp.orderservice.domain.model.TransactionOutcome;
+import com.rp.orderservice.domain.port.UserPort;
+import com.rp.orderservice.infrastructure.dto.integration.user.TransactionDto;
+import com.rp.orderservice.infrastructure.dto.integration.user.TransactionResultDto;
+import com.rp.orderservice.infrastructure.dto.integration.user.UserDto;
 import com.rp.orderservice.util.ExceptionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -21,57 +23,62 @@ import java.time.Duration;
 import java.util.function.Function;
 
 @Slf4j
-public class ProductClient implements ProductInfoPort {
+public class UserClient implements UserPort {
 
+    private final String transactionsUri;
     private final int timeoutSeconds;
     private final int retryAttempts;
     private final int retryFixedDelaySeconds;
+
     private final WebClient webClient;
-    private final ProductAdapter productAdapter;
+    private final TransactionAdapter transactionAdapter;
     private final ExceptionUtil exceptionUtil;
 
-    public ProductClient(int timeoutSeconds,
-                         int retryAttempts,
-                         int retryFixedDelaySeconds,
-                         WebClient webClient,
-                         ProductAdapter productAdapter,
-                         ExceptionUtil exceptionUtil) {
+    public UserClient(String transactionsUri,
+                      int timeoutSeconds,
+                      int retryAttempts,
+                      int retryFixedDelaySeconds,
+                      WebClient webClient,
+                      TransactionAdapter transactionAdapter,
+                      ExceptionUtil exceptionUtil) {
+        this.transactionsUri = transactionsUri;
         this.timeoutSeconds = timeoutSeconds;
         this.retryAttempts = retryAttempts;
         this.retryFixedDelaySeconds = retryFixedDelaySeconds;
         this.webClient = webClient;
-        this.productAdapter = productAdapter;
+        this.transactionAdapter = transactionAdapter;
         this.exceptionUtil = exceptionUtil;
     }
 
     @Override
-    public Mono<ProductInfo> getProductInfo(String productId) {
-        return this.getProductById(productId)
-                .map(this.productAdapter::toModel);
+    public Mono<TransactionOutcome> executeTransaction(long userId, int amount) {
+        return Mono.fromSupplier(() -> this.transactionAdapter.toDto(userId, amount))
+                .flatMap(this::executeTransaction)
+                .map(this.transactionAdapter::toModel);
     }
 
     @Override
-    public Flux<String> getAllProductIds() {
-        return this.getAllProducts()
-                .map(ProductDto::id);
+    public Flux<Long> getAllUserIds() {
+        return this.getAllUsers()
+                .map(UserDto::id);
     }
 
-    private Flux<ProductDto> getAllProducts() {
+    private Flux<UserDto> getAllUsers() {
         return this.webClient.get()
-                .uri("/all")
                 .retrieve()
-                .bodyToFlux(ProductDto.class)
+                .bodyToFlux(UserDto.class)
                 .timeout(Duration.ofSeconds(this.timeoutSeconds))
                 .retryWhen(this.handleRetry())
                 .onErrorMap(Exceptions::isRetryExhausted, this::handleRetriedErrors);
     }
 
-    private Mono<ProductDto> getProductById(String productId) {
-        return this.webClient.get()
-                .uri("/{id}", productId)
+    private Mono<TransactionResultDto> executeTransaction(TransactionDto transactionDto) {
+        return this.webClient.post()
+                .uri(this.transactionsUri)
+                .bodyValue(transactionDto)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
-                .bodyToMono(ProductDto.class)
+                .bodyToMono(TransactionResultDto.class)
                 .timeout(Duration.ofSeconds(this.timeoutSeconds))
                 .retryWhen(this.handleRetry())
                 .onErrorMap(Exceptions::isRetryExhausted, this::handleRetriedErrors);
@@ -86,7 +93,7 @@ public class ProductClient implements ProductInfoPort {
                 .createException()
                 .map(err -> new OrderProcessingException
                         (
-                                "Invalid Product Request",
+                                "Invalid Transaction Request",
                                 buildExplanationMessage.apply(err),
                                 err
                         )
@@ -94,13 +101,13 @@ public class ProductClient implements ProductInfoPort {
     }
 
     private OrderProcessingException handleRetriedErrors(Throwable err) {
-        return new OrderProcessingException("Product Service Error", err.getCause().getMessage(), err);
+        return new OrderProcessingException("User Service Error", err.getCause().getMessage(), err);
     }
 
     private RetryBackoffSpec handleRetry() {
         return Retry.fixedDelay(this.retryAttempts, Duration.ofSeconds(this.retryFixedDelaySeconds))
                 .filter(this::isRetriable)
-                .doAfterRetry(sg -> log.warn("Retrying request to Product service. Attempt {}", sg.totalRetries() + 1));
+                .doAfterRetry(sg -> log.warn("Retrying request to User service. Attempt {}", sg.totalRetries() + 1));
     }
 
     private boolean isRetriable(Throwable throwable) {

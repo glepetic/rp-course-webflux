@@ -6,6 +6,7 @@ import com.rp.orderservice.domain.port.OrderPort;
 import com.rp.orderservice.infrastructure.repository.dao.OrderEntityDao;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public class OrderRDBRepository implements OrderPort {
 
@@ -20,14 +21,16 @@ public class OrderRDBRepository implements OrderPort {
     @Override
     public Mono<Order> save(Order order) {
         return Mono.fromSupplier(() -> this.orderAdapter.toEntity(order))
-                .map(this.orderDao::save)
+                .publishOn(Schedulers.boundedElastic())
+                .map(this.orderDao::save) // blocking
                 .map(this.orderAdapter::toModel);
     }
 
     @Override
     public Flux<Order> findAllByUserId(long userId) {
         return Mono.just(userId)
-                .flatMapIterable(this.orderDao::findAllByUserId)
+                .publishOn(Schedulers.boundedElastic())
+                .flatMapIterable(this.orderDao::findAllByUserId) // blocking
                 .map(this.orderAdapter::toModel);
     }
 

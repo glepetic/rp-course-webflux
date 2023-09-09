@@ -1,3 +1,7 @@
 package com.rp.orderservice.infrastructure.dto.integration.user;
 
-public record TransactionDto(long userId, int amount) {}
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record TransactionDto(Long userId, Integer amount) {}

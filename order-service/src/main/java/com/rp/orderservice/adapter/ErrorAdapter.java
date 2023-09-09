@@ -1,5 +1,7 @@
 package com.rp.orderservice.adapter;
 
+import com.rp.orderservice.domain.exception.InvalidOrderException;
+import com.rp.orderservice.domain.exception.OrderProcessingException;
 import com.rp.orderservice.infrastructure.dto.response.ErrorCode;
 import com.rp.orderservice.infrastructure.dto.response.ErrorResponse;
 import org.springframework.web.server.MissingRequestValueException;
@@ -12,8 +14,10 @@ public class ErrorAdapter {
 
     private final Map<Class<? extends Throwable>, ErrorCode> codeMap = Map.of(
             MissingRequestValueException.class, ErrorCode.INVALID_REQUEST,
-            ServerWebInputException.class, ErrorCode.INVALID_REQUEST
-    );
+            ServerWebInputException.class, ErrorCode.INVALID_REQUEST,
+            InvalidOrderException.class, ErrorCode.INVALID_REQUEST,
+            OrderProcessingException.class, ErrorCode.UNAVAILABLE_SERVICE
+            );
 
     public ErrorResponse toErrorResponse(Throwable throwable, Supplier<String> messageProvider) {
         ErrorCode errorCode = this.getErrorCode(throwable);

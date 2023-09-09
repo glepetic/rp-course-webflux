@@ -1,54 +1,83 @@
 package com.rp.orderservice.domain.service;
 
+import com.rp.orderservice.domain.exception.OrderProcessingException;
+import com.rp.orderservice.domain.mapper.OrderMapper;
 import com.rp.orderservice.domain.model.Order;
-import com.rp.orderservice.domain.model.OrderStatus;
-import com.rp.orderservice.domain.model.ProductInfo;
-import com.rp.orderservice.domain.model.TransactionOutcome;
+import com.rp.orderservice.domain.model.OrderProcess;
 import com.rp.orderservice.domain.port.OrderPort;
 import com.rp.orderservice.domain.port.ProductInfoPort;
-import com.rp.orderservice.domain.port.UserTransactionPort;
+import com.rp.orderservice.domain.port.UserPort;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.function.BiFunction;
-
+@Slf4j
 public class OrderService {
 
+    private final String key = this.getClass().getSimpleName() + " ->";
+
+    private final ValidationService validationService;
     private final ProductInfoPort productInfoPort;
-    private final UserTransactionPort transactionPort;
+    private final UserPort userPort;
     private final OrderPort orderPort;
+    private final OrderMapper orderMapper;
 
-    public OrderService(ProductInfoPort productInfoPort,
-                        UserTransactionPort transactionPort,
-                        OrderPort orderPort) {
+    public OrderService(ValidationService validationService,
+                        ProductInfoPort productInfoPort,
+                        UserPort userPort,
+                        OrderPort orderPort,
+                        OrderMapper orderMapper) {
+        this.validationService = validationService;
         this.productInfoPort = productInfoPort;
-        this.transactionPort = transactionPort;
+        this.userPort = userPort;
         this.orderPort = orderPort;
-    }
-
-    public Mono<Order> processOrder(Order order) {
-
-        Mono<ProductInfo> productInfoMono = this.productInfoPort.getProductInfo(order.productId())
-                .cache();
-
-        Mono<TransactionOutcome> transactionOutcomeMono = productInfoMono
-                .flatMap(productInfo -> this.transactionPort.execute(order.userId(), productInfo.price()));
-
-        BiFunction<ProductInfo, TransactionOutcome, Order> orderBuilder = (productInfo, transactionOutcome) -> Order
-                .builder()
-                .productId(order.productId())
-                .userId(order.userId())
-                .amount(productInfo.price())
-                .status(transactionOutcome.success() ? OrderStatus.SUCCESS : OrderStatus.FAILURE)
-                .build();
-
-        return Mono.zip(productInfoMono, transactionOutcomeMono, orderBuilder)
-                .flatMap(this.orderPort::save);
-
+        this.orderMapper = orderMapper;
     }
 
     public Flux<Order> getOrders(long userId) {
         return this.orderPort.findAllByUserId(userId);
+    }
+
+    public Flux<OrderProcess> findAllPossibleOrders() {
+        return Flux.zip(this.productInfoPort.getAllProductIds(), this.userPort.getAllUserIds(),
+                (productId, userId) -> OrderProcess.builder()
+                        .productId(productId)
+                        .userId(userId)
+                        .build()
+        );
+    }
+
+    public Mono<Order> processOrder(OrderProcess orderProcess) {
+        return this.validationService.validate(orderProcess)
+                .flatMap(this::getProductInfo)
+                .flatMap(this::executeTransaction)
+                .map(this.orderMapper::buildOrder)
+                .onErrorResume(OrderProcessingException.class, err -> this.handleError(orderProcess, err))
+                .flatMap(this.orderPort::save)
+                .doOnError(err -> log.error("{} unexpected error encountered: {}", key, err.getMessage(), err));
+    }
+
+    private Mono<OrderProcess> getProductInfo(OrderProcess orderProcess) {
+        return this.productInfoPort.getProductInfo(orderProcess.productId())
+                .map(productInfo -> orderProcess
+                        .toBuilder()
+                        .productInfo(productInfo)
+                        .build()
+                );
+    }
+
+    private Mono<OrderProcess> executeTransaction(OrderProcess orderProcess) {
+        return this.userPort.executeTransaction(orderProcess.userId(), orderProcess.productInfo().price())
+                .map(transactionOutcome -> orderProcess
+                        .toBuilder()
+                        .transactionOutcome(transactionOutcome)
+                        .build()
+                );
+    }
+
+    private Mono<Order> handleError(OrderProcess orderProcess, OrderProcessingException err) {
+        log.error("{} failed to process order. Detail -> {}", key, err.getFullDetail(), err);
+        return Mono.fromSupplier(() -> this.orderMapper.buildOrderFromError(orderProcess, err));
     }
 
 }
