@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,8 @@ public class MathController {
 
     @GetMapping("/square/{number}")
     public Mono<ResultResponse> getSquare(@PathVariable Long number) {
-        return this.mathService.getSquare(number);
+        return this.mathService.getSquare(number)
+                .defaultIfEmpty(new ResultResponse(LocalDateTime.now(),  -1L));
     }
 
     @GetMapping("/square/{number}/manual")
